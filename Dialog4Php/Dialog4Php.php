@@ -9,7 +9,7 @@ class Dialog4Php {
 
     private $pipes = array();
     private $processId = null;
-    private $cout = '';
+    private $response = '';
     private $ret = -1;
     private $errorCount = 0;
     private $shouldExitOnError = true;
@@ -55,9 +55,9 @@ class Dialog4Php {
             usleep(2000);
         }
 
-        $this->cout = '';
+        $this->response = '';
         while ($partial = fgets($this->pipes[3])) {
-            $this->cout = $partial;
+            $this->response = $partial;
         }
 
         while ($partial = fgets($this->pipes[2])) {
@@ -219,6 +219,26 @@ class Dialog4Php {
     public function guageStop(){
         $this->processStop();
         return $this->ret[0];
+    }
+    
+    public function inputBox($body, $default){
+        $default = ($default === null) ? null : "'" . str_replace("'", "\\'", $colorThemes['body'] . $default) . "'";
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --inputbox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth $default");
+        if ($this->ret == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public function getResponse(){
+        return $this->response;
     }
 
 }
