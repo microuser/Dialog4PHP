@@ -16,6 +16,7 @@ class Dialog4Php {
     private $escapeKeyReturn = false;
     private $screenHeight = 24;
     private $screenWidth = 80;
+    private $lastCommand = '';
 
     public function setXY($width, $height) {
         $this->screenHeight = $height;
@@ -39,6 +40,7 @@ class Dialog4Php {
     }
 
     private function processStart($cmd, $wantinputfd = false) {
+        $this->lastCommand = $cmd;
         $this->processId = proc_open(
                 $cmd, array(
             0 => ($wantinputfd) ? array('pipe', 'r') : STDIN,
@@ -66,7 +68,7 @@ class Dialog4Php {
         }
 
         if ($this->errorCount && $this->shouldExitOnError) {
-            fwrite(STDERR, 'Program exiting with error' . PHP_EOL);
+            fwrite(STDERR, 'Error with error on command: '.PHP_EOL.$this->lastCommand.'' . PHP_EOL.PHP_EOL);
             exit(1);
         }
 
@@ -275,17 +277,17 @@ class Dialog4Php {
 
         $string = '';
         //if (is_array($trees)) {
-            foreach ($trees as $key => $tree) {
-                if (is_array($tree) && !is_string($tree)) {
-                    $string .= $this->recursiveTree($tree, $depth + 1);
-                }
-                //We are at end of branch
-                else {
-                    if ($key == 2) {
-                        $string .= " '" . $trees[0] . "'" . " '" . $trees[1] . "'" . " '" . $trees[2] . "'" . " $depth";
-                    }
+        foreach ($trees as $key => $tree) {
+            if (is_array($tree) && !is_string($tree)) {
+                $string .= $this->recursiveTree($tree, $depth + 1);
+            }
+            //We are at end of branch
+            else {
+                if ($key == 2) {
+                    $string .= " '" . $trees[0] . "'" . " '" . $trees[1] . "'" . " '" . $trees[2] . "'" . " $depth";
                 }
             }
+        }
         //}
         return $string;
     }
@@ -306,6 +308,19 @@ class Dialog4Php {
         }
     }
 
-    
+    public function timeBox($body, $hour = null, $minute = null, $second = null, $title = null, $backtitle = null, $colorTheme = null) {
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --timebox '" . str_replace("'", "\\'", $colorThemes['title'] . $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 10 : 12);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth $hour $minute $second");
+        if ($this->ret == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
