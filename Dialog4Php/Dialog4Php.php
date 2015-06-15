@@ -94,35 +94,35 @@ class Dialog4Php {
 
     private function colorThemes($colorTheme) {
 
-        if ($colorTheme == 1 || $colorTheme == 'critical') {
+        if ($colorTheme == 1 || $colorTheme === 'critical') {
             return array(
                 'backtitle' => "\Z1",
                 'title' => "\Z7",
                 'body' => "\Z1",
                 'colors' => ' --colors'
             );
-        } elseif ($colorTheme == 1 || $colorTheme == 'warn') {
+        } elseif ($colorTheme == 2 || $colorTheme === 'warning') {
             return array(
                 'backtitle' => "",
                 'title' => "",
                 'body' => "",
                 'colors' => ' --colors'
             );
-        } elseif ($colorTheme == 1 || $colorTheme == 'info') {
+        } elseif ($colorTheme == 3 || $colorTheme === 'info') {
             return array(
                 'backtitle' => "",
                 'title' => "",
                 'body' => "",
                 'colors' => ' --colors'
             );
-        } elseif ($colorTheme == 1 || $colorTheme == 'ok') {
+        } elseif ($colorTheme == 4 || $colorTheme === 'ok') {
             return array(
                 'backtitle' => "",
                 'title' => "",
                 'body' => "",
                 'colors' => ' --colors'
             );
-        } elseif ($colorTheme == 1 || $colorTheme == 'success') {
+        } elseif ($colorTheme == 5 || $colorTheme === 'success') {
             return array(
                 'backtitle' => "",
                 'title' => "",
