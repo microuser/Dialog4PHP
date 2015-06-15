@@ -6,7 +6,7 @@ $dp = new Dialog4Php();
 
 
 
-if($dp->yesnoBox("Do you kick it with a tasty groove?")){
+if($dp->yesnoBox("Do you kick it with a tasty groove?","Main Title", "Back title", 1)){
     $dp->infoBox("Funky");
 }else {
     $dp->infoBox("Not cool bro?");

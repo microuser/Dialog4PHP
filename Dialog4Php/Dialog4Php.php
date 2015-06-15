@@ -14,13 +14,28 @@ class Dialog4Php {
     private $errorCount = 0;
     private $shouldExitOnError = true;
     private $escapeKeyReturn = false;
+    private $screenHeight = 24;
+    private $screenWidth = 80;
+
+    public function setXY($width, $height) {
+        $this->screenHeight = $height;
+        $this->screenWidth = $width;
+        return $this;
+    }
+
+    public function resetXY() {
+        $this->setXY(80, 24);
+        return $this;
+    }
 
     public function setExitOnError($toExit) {
         $this->shouldExitOnError = $toExit;
+        return $this;
     }
 
     public function setEscapeKeyReturn($returnValue) {
         $this->escapeKeyReturn = $returnValue;
+        return $this;
     }
 
     private function processStart($cmd, $wantinputfd = false) {
@@ -51,7 +66,7 @@ class Dialog4Php {
         }
 
         if ($this->errorCount && $this->shouldExitOnError) {
-            fwrite(STDERR, 'Program exiting with error');
+            fwrite(STDERR, 'Program exiting with error' . PHP_EOL);
             exit(1);
         }
 
@@ -77,11 +92,61 @@ class Dialog4Php {
         return $this->ret;
     }
 
-    public function infoBox($body, $title = null, $charHeight = 20, $charWidth = 74) {
-        $body = "--infobox '" . str_replace("'", "\\'", $body) . "'";
-        $title = "--title '" . str_replace("'", "\\'", $title) . "'";
-        $this->runCmd("dialog $title $body $charHeight $charWidth");
+    private function colorThemes($colorTheme) {
 
+        if ($colorTheme == 1 || $colorTheme == 'critical') {
+            return array(
+                'backtitle' => "\Z1",
+                'title' => "\Z7",
+                'body' => "\Z1",
+                'colors' => ' --colors'
+            );
+        } elseif ($colorTheme == 1 || $colorTheme == 'warn') {
+            return array(
+                'backtitle' => "",
+                'title' => "",
+                'body' => "",
+                'colors' => ' --colors'
+            );
+        } elseif ($colorTheme == 1 || $colorTheme == 'info') {
+            return array(
+                'backtitle' => "",
+                'title' => "",
+                'body' => "",
+                'colors' => ' --colors'
+            );
+        } elseif ($colorTheme == 1 || $colorTheme == 'ok') {
+            return array(
+                'backtitle' => "",
+                'title' => "",
+                'body' => "",
+                'colors' => ' --colors'
+            );
+        } elseif ($colorTheme == 1 || $colorTheme == 'success') {
+            return array(
+                'backtitle' => "",
+                'title' => "",
+                'body' => "",
+                'colors' => ' --colors'
+            );
+        }
+        return array(
+            'backtitle' => "",
+            'title' => "",
+            'body' => "",
+            'colors' => ''
+        );
+    }
+
+    public function infoBox($body, $title = null, $backtitle = null, $colorTheme = null) {
+
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --infobox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
         if ($this->ret == 0) {
             return true;
         } else {
@@ -89,10 +154,14 @@ class Dialog4Php {
         }
     }
 
-    public function msgBox($body, $title = null, $charHeight = 20, $charWidth = 74) {
-        $body = "--msgbox '" . str_replace("'", "\\'", $body) . "'";
-        $title = "--title '" . str_replace("'", "\\'", $title) . "'";
-        return $this->runCmd("dialog $title $body $charHeight $charWidth");
+    public function msgBox($body, $title = null, $backtitle = null) {
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --msgbox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
         if ($this->ret == 0) {
             return true;
         } else {
@@ -100,10 +169,14 @@ class Dialog4Php {
         }
     }
 
-    public function yesnoBox($body, $title = null, $charHeight = 20, $charWidth = 74) {
-        $body = "--yesno '" . str_replace("'", "\\'", $body) . "'";
-        $title = "--title '" . str_replace("'", "\\'", $title) . "'";
-        $this->runCmd("dialog $title $body $charHeight $charWidth");
+    public function yesnoBox($body, $title = null, $backtitle = '', $colorTheme = null) {
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --yesno '" . str_replace("'", "\\'", $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
 
         if ($this->ret == 0) {
             return true;
@@ -111,7 +184,5 @@ class Dialog4Php {
             return false;
         }
     }
-    
-    
 
 }
