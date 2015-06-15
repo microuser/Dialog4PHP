@@ -16,9 +16,7 @@ class Dialog4Php {
     private $escapeKeyReturn = false;
     private $screenHeight = 24;
     private $screenWidth = 80;
-    public function getPipes(){
-        return $this->pipes;
-    }
+
     
     
     public function setXY($width, $height) {
