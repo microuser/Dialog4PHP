@@ -16,6 +16,10 @@ class Dialog4Php {
     private $escapeKeyReturn = false;
     private $screenHeight = 24;
     private $screenWidth = 80;
+    public function getPipes(){
+        return $this->pipes;
+    }
+    
     
     public function setXY($width, $height) {
         $this->screenHeight = $height;
@@ -57,7 +61,7 @@ class Dialog4Php {
 
         $this->response = '';
         while ($partial = fgets($this->pipes[3])) {
-            $this->response = $partial;
+            $this->response .= $partial;
         }
 
         while ($partial = fgets($this->pipes[2])) {
@@ -239,6 +243,21 @@ class Dialog4Php {
     
     public function getResponse(){
         return $this->response;
+    }
+    
+    public function editBox($filePath, $title = null, $backtitle = null, $colorTheme = null){
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --editbox '" . str_replace("'", "\\'", $filePath) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
+        if ($this->ret == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
