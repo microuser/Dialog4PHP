@@ -16,7 +16,7 @@ class Dialog4Php {
     private $escapeKeyReturn = false;
     private $screenHeight = 24;
     private $screenWidth = 80;
-
+    
     public function setXY($width, $height) {
         $this->screenHeight = $height;
         $this->screenWidth = $width;
@@ -146,7 +146,7 @@ class Dialog4Php {
         $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
         $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
         $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
         if ($this->ret == 0) {
             return true;
         } else {
@@ -161,7 +161,7 @@ class Dialog4Php {
         $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
         $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
         $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
         if ($this->ret == 0) {
             return true;
         } else {
@@ -169,20 +169,56 @@ class Dialog4Php {
         }
     }
 
-    public function yesnoBox($body, $title = null, $backtitle = '', $colorTheme = null) {
+    public function yesnoBox($body, $title = null, $backtitle = null, $colorTheme = null) {
         $colorThemes = $this->colorThemes($colorTheme);
         $body = " --yesno '" . str_replace("'", "\\'", $body) . "'";
         $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
         $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
         $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
         $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3".$title.$backtitle.$colorThemes['colors'].$body." $charHeight $charWidth");
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
 
         if ($this->ret == 0) {
             return true;
         } else {
             return false;
         }
+    }
+
+    public function guageStart($body, $title = null, $backtitle = null, $colorTheme = null) {
+        $colorThemes = $this->colorThemes($colorTheme);
+        $this->guageBody(str_replace("'", "\\'", $colorThemes['body'] . $body));
+        $body = " --guage '" . str_replace("'", "\\'", $body) . "'";
+        
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->processStart("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth", true);
+
+        if ($this->ret == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public function guageBody($body = null){
+        static $bodyOld = '';
+        if($body !== null){
+            $bodyOld = $body;
+        }
+        return $bodyOld;
+    }
+    
+    public function guageUpdate($percent){
+        fwrite($this->pipes[0], "XXX\n".$percent."\n".$this->guageBody()."\nXXX\n".($percent)."\n");
+       
+    }
+    
+    public function guageStop(){
+        $this->processStop();
+        return $this->ret[0];
     }
 
 }
