@@ -17,8 +17,6 @@ class Dialog4Php {
     private $screenHeight = 24;
     private $screenWidth = 80;
 
-    
-    
     public function setXY($width, $height) {
         $this->screenHeight = $height;
         $this->screenWidth = $width;
@@ -191,7 +189,7 @@ class Dialog4Php {
         $colorThemes = $this->colorThemes($colorTheme);
         $this->guageBody(str_replace("'", "\\'", $colorThemes['body'] . $body));
         $body = " --guage '" . str_replace("'", "\\'", $body) . "'";
-        
+
         $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
         $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
         $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
@@ -204,26 +202,25 @@ class Dialog4Php {
             return false;
         }
     }
-    
-    public function guageBody($body = null){
+
+    public function guageBody($body = null) {
         static $bodyOld = '';
-        if($body !== null){
+        if ($body !== null) {
             $bodyOld = $body;
         }
         return $bodyOld;
     }
-    
-    public function guageUpdate($percent){
-        fwrite($this->pipes[0], "XXX\n".$percent."\n".$this->guageBody()."\nXXX\n".($percent)."\n");
-       
+
+    public function guageUpdate($percent) {
+        fwrite($this->pipes[0], "XXX\n" . $percent . "\n" . $this->guageBody() . "\nXXX\n" . ($percent) . "\n");
     }
-    
-    public function guageStop(){
+
+    public function guageStop() {
         $this->processStop();
         return $this->ret[0];
     }
-    
-    public function inputBox($body, $default){
+
+    public function inputBox($body, $default) {
         $default = ($default === null) ? null : "'" . str_replace("'", "\\'", $colorThemes['body'] . $default) . "'";
         $colorThemes = $this->colorThemes($colorTheme);
         $body = " --inputbox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
@@ -238,12 +235,12 @@ class Dialog4Php {
             return false;
         }
     }
-    
-    public function getResponse(){
+
+    public function getResponse() {
         return $this->response;
     }
-    
-    public function editBox($filePath, $title = null, $backtitle = null, $colorTheme = null){
+
+    public function editBox($filePath, $title = null, $backtitle = null, $colorTheme = null) {
         $colorThemes = $this->colorThemes($colorTheme);
         $body = " --editbox '" . str_replace("'", "\\'", $filePath) . "'";
         $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
@@ -251,6 +248,57 @@ class Dialog4Php {
         $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
         $charWidth = $this->screenWidth - 4;
         $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
+        if ($this->ret == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function recursiveTree($trees, $depth = -1) {
+        /*
+         * array(
+         *     1 1 1
+         *     2 2 2
+         *     3 3 3
+         *     array(
+         *         3.1 3.1 3.1
+         *         3.2 3.2 3.2 
+         *         3.3 3.3 3.3
+         *         array(
+         *             3.3.1 3.3.1 3.3.1
+         *         )
+         *         3.4 3.4 3.4 3.4
+         *     )
+         *     4 4 4
+         */
+
+        $string = '';
+        //if (is_array($trees)) {
+            foreach ($trees as $key => $tree) {
+                if (is_array($tree) && !is_string($tree)) {
+                    $string .= $this->recursiveTree($tree, $depth + 1);
+                }
+                //We are at end of branch
+                else {
+                    if ($key == 2) {
+                        $string .= " '" . $trees[0] . "'" . " '" . $trees[1] . "'" . " '" . $trees[2] . "'" . " $depth";
+                    }
+                }
+            }
+        //}
+        return $string;
+    }
+
+    public function treeView($body, $listHeight, Array $tree, $title = null, $backtitle = null, $colorTheme = null) {
+        $treeString = $this->recursiveTree($tree);
+        $colorThemes = $this->colorThemes($colorTheme);
+        $body = " --treeview '" . str_replace("'", "\\'", $colorThemes['title'] . $body) . "'";
+        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
+        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
+        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
+        $charWidth = $this->screenWidth - 4;
+        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth $listHeight $treeString");
         if ($this->ret == 0) {
             return true;
         } else {
