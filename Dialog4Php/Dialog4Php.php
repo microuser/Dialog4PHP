@@ -7,28 +7,89 @@
  */
 class Dialog4Php {
 
+    /**
+     *
+     * @var array
+     */
     private $pipes = array();
+    /**
+     *
+     * @var int
+     */
     private $processId = null;
+    /**
+     *
+     * @var string
+     */
     private $response = '';
+    /**
+     *
+     * @var int
+     */
     private $ret = -1;
+    /**
+     *
+     * @var int
+     */
     private $errorCount = 0;
+    /**
+     *
+     * @var bool
+     */
     private $shouldExitOnError = true;
+    /**
+     *
+     * @var bool
+     */
     private $escapeKeyReturn = false;
+    /**
+     *
+     * @var int
+     */
     private $screenHeight = 24;
+    /**
+     *
+     * @var int
+     */
     private $screenWidth = 80;
+    /**
+     *
+     * @var string
+     */
     private $lastCommand = '';
-
+    
+    /**
+     *
+     * @var type 
+     */
+    protected $type = null;
+    
+    /**
+     * 
+     * @param type $width
+     * @param type $height
+     * @return \Dialog4Php
+     */
     public function setXY($width, $height) {
         $this->screenHeight = $height;
         $this->screenWidth = $width;
         return $this;
     }
 
+    /**
+     * 
+     * @return \Dialog4Php
+     */
     public function resetXY() {
         $this->setXY(80, 24);
         return $this;
     }
 
+    /**
+     * 
+     * @param int $toExit
+     * @return \Dialog4Php
+     */
     public function setExitOnError($toExit) {
         $this->shouldExitOnError = $toExit;
         return $this;
@@ -140,6 +201,17 @@ class Dialog4Php {
         );
     }
 
+    /**
+     * 
+     * @param string $body
+     * @return \Dialog4Php
+     */
+    public function setBody(string $body){
+        $this->body = (string) str_replace('"', '\"', $body);
+        return $this;
+    }
+    
+    
     public function infoBox($body, $title = null, $backtitle = null, $colorTheme = null) {
 
         $colorThemes = $this->colorThemes($colorTheme);
@@ -322,5 +394,7 @@ class Dialog4Php {
             return false;
         }
     }
+    
+    
 
 }
