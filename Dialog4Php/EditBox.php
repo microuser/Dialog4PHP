@@ -1,25 +1,29 @@
 <?php
+
 namespace Dialog4Php;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- * Description of D4P_InfoBox
- *
- * @author user
- */
-class EditBox extends Dialog4PHP{// implements Dialog4PhpAbstract {
+class EditBox extends Dialog4PHP {
 
+    /**
+     *
+     * @var string
+     */
     protected $type = "--editbox";
-    
-    public function setFilePath($filePath){
+
+    /**
+     *
+     * @param string $filePath
+     * @return \Dialog4Php\EditBox
+     */
+    public function setFilePath($filePath) {
         $this->setTypeArgs($filePath);
         return $this;
     }
 
+    /**
+     *
+     * @return boolean
+     */
     public function run() {
         $cmd = $this->generateProgram();
         $cmd .= $this->generateTitle();
@@ -33,4 +37,5 @@ class EditBox extends Dialog4PHP{// implements Dialog4PhpAbstract {
             return false;
         }
     }
+
 }

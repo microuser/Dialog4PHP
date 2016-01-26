@@ -1,23 +1,22 @@
 <?php
+use Dialog4Php\Guage;
 
-include_once(__DIR__.'/../Dialog4Php.php');
+require_once(__DIR__.'/../Dialog4Php.php');
 
-$dp = new Dialog4Php();
+$dp = new Dialog4Php\Guage();
 
 
-$dp->guageStart("Hold Yer Horses.", null, null, 0);
-for($i=0; $i<= 100; ++$i){
-    usleep(10000); //50ms
-    $dp->guageUpdate($i);
+$dp->setTitle("Her Yer Hourses")->setBackTitle("Backtitle");
+$dp->setColorTheme(5);
+$dp->setBody("some body");
+
+
+//$dp->start();
+for($i=0; $i<= 100; $i+=10){
+    usleep(500000); //50ms
+    //$dp->update($i);
+    $dp->setBody("so close".$i);
+    $dp->setPercent($i);
+    $dp->run();
 }
-$dp->guageStop();
-
-
-$dp->setXY(80, 11);
-$dp->guageStart("Erasing History", "Universe Wipe", "The Borg Collective",0);
-for($i=100; $i>=0; --$i){
-    usleep(1000); 
-    $dp->guageUpdate($i);
-}
-$dp->guageStop();
-$dp->resetXY();
+//$dp->stop();

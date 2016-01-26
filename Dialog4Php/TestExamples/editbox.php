@@ -1,8 +1,7 @@
 <?php
 
 use Dialog4Php\EditBox;
-
-include_once(__DIR__ . '/../Dialog4Php.php');
+require_once(__DIR__ . '/../Dialog4Php.php');
 
 $ib = new \Dialog4Php\EditBox();
 $ib->setFilePath('editbox.php')

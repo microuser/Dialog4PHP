@@ -2,9 +2,9 @@
 
 namespace Dialog4Php;
 
-require_once('Dialog4PhpAbstract.php');
 require_once('InfoBox.php');
 require_once('EditBox.php');
+require_once('Guage.php');
 
 /**
  * Description of Dialog4Php
@@ -60,13 +60,13 @@ class Dialog4Php {
      *
      * @var string
      */
-    private $pipeRedirect = '--output-fd 3';
+    protected $pipeRedirect = '--output-fd 3';
 
     /**
      *
      * @var array
      */
-    private $pipes = array();
+    protected $pipes = array();
 
     /**
      *
@@ -78,7 +78,7 @@ class Dialog4Php {
      *
      * @var sring
      */
-    private $program = 'dialog';
+    protected $program = 'dialog';
 
     /**
      *
@@ -180,8 +180,11 @@ class Dialog4Php {
     protected function generateType() {
         if (!empty($this->getTypeArgs())) {
             return " " . $this->getType() . " '" . $this->getColorTheme('body') . $this->getTypeArgs() . "'";
+        } if(is_null($this->getTypeArgs())){
+            return " " . $this->getType() ;
+        } else {
+            return " " . $this->getType() . " ''";
         }
-        return " " . $this->generateType() . " ''";
     }
 
     /**
@@ -199,15 +202,19 @@ class Dialog4Php {
      * @throws \Exception
      */
     public function getColorTheme($item) {
-        if ($this->colorTheme !== null) {
+        if (!empty($this->colorTheme)) {
             if (isset($this->colorTheme[$item])) {
                 return $this->colorTheme[$item];
             } else {
-                throw new \Exception('Key not in array, expecting string: backtitle, title, body, or enable');
+                throw new \Exception($item.' in ColorTheme, expecting string: backtitle, title, body, or enable');
             }
         }
     }
 
+    protected function getExitCode(){
+        return (int)$this->exitCode;
+    }
+    
     /**
      *
      * @return string
@@ -273,7 +280,8 @@ class Dialog4Php {
             0 => ($wantinputfd) ? array('pipe', 'r') : STDIN,
             1 => STDOUT,
             2 => array('pipe', 'w'),
-            3 => array('pipe', 'w')
+            3 => array('pipe', 'w'),
+            //4 => array('pipe', 'r')
                 ), $this->pipes
         );
         return $this;
@@ -307,7 +315,7 @@ class Dialog4Php {
         fclose($this->pipes[2]);
         fclose($this->pipes[3]);
 
-//Loop while process is still running
+        //Loop while process is still running
         do {
             usleep(2000);
             $procStatus = proc_get_status($this->processId);
@@ -482,6 +490,8 @@ class Dialog4Php {
             foreach ($typeArgs as $arg) {
                 $this->typeArgs .= self::escapeSingleQuote($arg);
             }
+        } else if (is_null($typeArgs)){
+            $this->typeArgs = null;
         }
         return $this;
     }
@@ -517,40 +527,6 @@ class Dialog4Php {
         }
     }
 
-    public function guageStart($body, $title = null, $backtitle = null, $colorTheme = null) {
-        $colorThemes = $this->colorTheme($colorTheme);
-        $this->guageBody(str_replace("'", "\\'", $colorThemes['body'] . $body));
-        $body = " --guage '" . str_replace("'", "\\'", $body) . "'";
-
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->processStart("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth", true);
-
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function guageBody($body = null) {
-        static $bodyOld = '';
-        if ($body !== null) {
-            $bodyOld = $body;
-        }
-        return $bodyOld;
-    }
-
-    public function guageUpdate($percent) {
-        fwrite($this->pipes[0], "XXX\n" . $percent . "\n" . $this->guageBody() . "\nXXX\n" . ($percent) . "\n");
-    }
-
-    public function guageStop() {
-        $this->processStop();
-        return $this->ret[0];
-    }
 
     public function inputBox($body, $default) {
         $default = ($default === null) ? null : "'" . str_replace("'", "\\'", $colorThemes['body'] . $default) . "'";
