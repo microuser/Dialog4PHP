@@ -1,6 +1,15 @@
 <?php
-include_once(__DIR__.'/../Dialog4Php.php');
-$dp = new Dialog4Php();
 
-$dp->editBox('/home/user/NetBeansProjects/Dialog4PHP/README.md', "Edit your readme here", "Edit fun");
-echo $dp->getResponse();
+use Dialog4Php\EditBox;
+
+include_once(__DIR__ . '/../Dialog4Php.php');
+
+$ib = new \Dialog4Php\EditBox();
+$ib->setFilePath('editbox.php')
+        ->setScreenMax()
+        ->setTitle("someTitle")
+        ->setBackTitle("backtitle")
+        ->setColorTheme(0)
+        ->run();
+
+echo $ib->getResponse();

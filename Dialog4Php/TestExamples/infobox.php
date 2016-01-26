@@ -1,15 +1,13 @@
 <?php
 use Dialog4Php\Dialog4Php;
+use Dialog4Php\InfoBox;
 include_once(__DIR__.'/../Dialog4Php.php');
 
-(new \Dialog4Php\D4P_InfoBox())
-->setBody("hello")
+$ib = new \Dialog4Php\InfoBox();
+$ib->setBody('seris')
+->setScreenMax()
 ->setTitle("someTitle")
-->setBackTitle("backtitle")
-->setColorTheme(1)
+//->setBackTitle("backtitle")
+->setColorTheme(0)
 ->run();
 
-
-//$dp->infoBox("This is a test of just body");
-//$dp->infoBox("Body", "Title");
-//$dp->infoBox("Body","Title","Backtitle");

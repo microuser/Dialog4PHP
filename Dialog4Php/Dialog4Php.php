@@ -3,7 +3,8 @@
 namespace Dialog4Php;
 
 require_once('Dialog4PhpAbstract.php');
-require_once('D4P_InfoBox.php');
+require_once('InfoBox.php');
+require_once('EditBox.php');
 
 /**
  * Description of Dialog4Php
@@ -13,11 +14,11 @@ require_once('D4P_InfoBox.php');
 class Dialog4Php {
 
     const D4P_THEME_DEFAULT = 0;
-    const D4P_THEME_CRITICAL = 5;
-    const D4P_THEME_WARNING = 4;
-    const D4P_THEME_INFO = 3;
-    const D4P_THEME_OK = 2;
     const D4P_THEME_SUCCESS = 1;
+    const D4P_THEME_OK = 2;
+    const D4P_THEME_INFO = 3;
+    const D4P_THEME_WARNING = 4;
+    const D4P_THEME_CRITICAL = 5;
 
     /**
      *
@@ -25,11 +26,7 @@ class Dialog4Php {
      */
     private $backTitle = '';
 
-    /**
-     *
-     * @var string
-     */
-    private $body = '';
+
 
     /**
      *
@@ -120,7 +117,16 @@ class Dialog4Php {
      * @var type
      */
     protected $type;
-
+    /**
+     *
+     * @var string
+     */
+    private $typeArgs = '';
+    
+    private static function escapeSingleQuote($unescaped){
+        return str_replace("", "\\'", $unescaped);
+    }
+    
     /**
      * 
      * @return string
@@ -301,10 +307,7 @@ class Dialog4Php {
      */
     public function setScreenMax() {
         $output = array();
-//$sizeCommaSeparated = $this->runCmd('dialog --print-maxsize', $output);
         $this->runCmd('dialog  --output-fd 3 --print-maxsize ');
-        echo "\n\n";
-        echo "\n\n";
         $wxy = explode(" ", str_replace(",", "", $this->response));
         if (isset($wxy[2]) && isset($wxy[1])) {
             $this->setXY($wxy[2], $wxy[1]);
@@ -369,8 +372,15 @@ class Dialog4Php {
      * @param string $body
      * @return \Dialog4Php
      */
-    public function setBody($body) {
-        $this->body = self::escapeSingleQuote($body);
+    protected function setTypeArgs($typeArgs) {
+        if(is_string($typeArgs)){
+            $this->typeArgs = self::escapeSingleQuote($typeArgs);
+        } else if(is_array($typeArgs)){
+            $this->typeArgs = '';
+            foreach($typeArgs as $arg){
+                $this->typeArgs .= self::escapeSingleQuote($arg);
+            }
+        }
         return $this;
     }
 
@@ -397,8 +407,8 @@ class Dialog4Php {
      *
      * @return string
      */
-    protected function getBody() {
-        return (string) $this->body;
+    protected function getTypeArgs() {
+        return (string) $this->typeArgs;
     }
 
     /**
@@ -507,20 +517,7 @@ class Dialog4Php {
         return $this->response;
     }
 
-    public function editBox($filePath, $title = null, $backtitle = null, $colorTheme = null) {
-        $colorThemes = $this->colorTheme($colorTheme);
-        $body = " --editbox '" . str_replace("'", "\\'", $filePath) . "'";
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 
     private function recursiveTree($trees, $depth = -1) {
         /*
@@ -589,7 +586,7 @@ class Dialog4Php {
     }
 
     protected function generateColorTheme() {
-        return ' ' . $this->getColorTheme('enable');
+        return (empty($this->getColorTheme('enable')) ? '' : " ".$this->getColorTheme('enable'));
     }
 
     /**
@@ -618,19 +615,11 @@ class Dialog4Php {
      * 
      * @return string
      */
-    protected function generateBody() {
-        if (!empty($this->getBody())) {
-            return $this->generateType() . " '" . $this->getColorTheme('body') . $this->getBody() . "'";
-        }
-        return $this->generateType() . " ''";
-    }
-
-    /**
-     * 
-     * @return string
-     */
     protected function generateType() {
-        return ' ' . $this->getType();
+        if (!empty($this->getTypeArgs())) {
+            return " ". $this->getType() . " '" . $this->getColorTheme('body') . $this->getTypeArgs() . "'";
+        }
+        return " ".$this->generateType() . " ''";
     }
 
     /**
@@ -645,8 +634,9 @@ class Dialog4Php {
      * 
      * @return string
      */
-    protected function generateScreen() {
-        return " " . $this->getScreenWidth() . " " . $this->getScreenHeight();
+    protected function generateScreen($modX = 0, $modY = 0) {
+        return  " " . (((int)$this->getScreenHeight()) - (int)$modY - (empty($this->getBackTitle()) ? 4 : 5 )) .
+                " " . (((int)$this->getScreenWidth()) -  (int)$modX - 4) ;
     }
 
 }

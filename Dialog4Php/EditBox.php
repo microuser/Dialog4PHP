@@ -11,24 +11,26 @@ namespace Dialog4Php;
  *
  * @author user
  */
-class D4P_InfoBox extends Dialog4PHP{// implements Dialog4PhpAbstract {
+class EditBox extends Dialog4PHP{// implements Dialog4PhpAbstract {
 
-    protected $type = "--infobox";
+    protected $type = "--editbox";
+    
+    public function setFilePath($filePath){
+        $this->setTypeArgs($filePath);
+        return $this;
+    }
 
     public function run() {
-        $cmd = $this->getProgram();
-        $cmd .= ' --output-fd 3';
+        $cmd = $this->generateProgram();
         $cmd .= $this->generateTitle();
         $cmd .= $this->generateBackTitle();
         $cmd .= $this->generateColorTheme();
-        $cmd .= $this->generateBody();
-        $cmd .= ' ' . (((int)$this->screenHeight) - ( (empty($this->getBackTitle()) ? 3 : 5 ) ));
-        $cmd .= ' ' . (((int)$this->screenWidth) - 4);
+        $cmd .= $this->generateType();
+        $cmd .= $this->generateScreen();
         if ($this->runCmd($cmd) == 0) {
             return true;
         } else {
             return false;
         }
-        
     }
 }
