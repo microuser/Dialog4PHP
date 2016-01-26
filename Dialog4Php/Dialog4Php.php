@@ -12,6 +12,61 @@ require_once('D4P_InfoBox.php');
  */
 class Dialog4Php {
 
+    const D4P_THEME_DEFAULT = 0;
+    const D4P_THEME_CRITICAL = 5;
+    const D4P_THEME_WARNING = 4;
+    const D4P_THEME_INFO = 3;
+    const D4P_THEME_OK = 2;
+    const D4P_THEME_SUCCESS = 1;
+
+    /**
+     *
+     * @var string
+     */
+    private $backTitle = '';
+
+    /**
+     *
+     * @var string
+     */
+    private $body = '';
+
+    /**
+     *
+     * @var array
+     */
+    private $colorTheme = array();
+
+    /**
+     *
+     * @var int
+     */
+    private $errorCount = 0;
+
+    /**
+     *
+     * @var bool
+     */
+    private $escapeKeyReturn = false;
+
+    /**
+     *
+     * @var int
+     */
+    private $exitCode = -1;
+
+    /**
+     *
+     * @var string
+     */
+    private $lastCommand = '';
+
+    /**
+     *
+     * @var string
+     */
+    private $pipeRedirect = '--output-fd 3';
+
     /**
      *
      * @var array
@@ -26,6 +81,12 @@ class Dialog4Php {
 
     /**
      *
+     * @var sring
+     */
+    private $program = 'dialog';
+
+    /**
+     *
      * @var string
      */
     private $response = '';
@@ -34,13 +95,13 @@ class Dialog4Php {
      *
      * @var int
      */
-    private $exitCode = -1;
+    private $screenHeight = 24;
 
     /**
      *
      * @var int
      */
-    private $errorCount = 0;
+    private $screenWidth = 80;
 
     /**
      *
@@ -50,67 +111,24 @@ class Dialog4Php {
 
     /**
      *
-     * @var bool
-     */
-    private $escapeKeyReturn = false;
-
-    /**
-     *
-     * @var int
-     */
-    protected $screenHeight = 24;
-
-    /**
-     *
-     * @var int
-     */
-    protected $screenWidth = 80;
-
-    /**
-     *
      * @var string
-     */
-    private $lastCommand = '';
-
-    /**
-     *
-     * @var type 
-     */
-    protected $type = null;
-
-    const D4P_THEME_DEFAULT = 0;
-    const D4P_THEME_CRITICAL = 1;
-    const D4P_THEME_WARNING = 2;
-    const D4P_THEME_INFO = 3;
-    const D4P_THEME_OK = 4;
-    const D4P_THEME_SUCCESS = 5;
-
-    private $colorTheme = array();
-
-    /**
-     *
-     * @var string 
-     */
-    private $body = '';
-
-    /**
-     *
-     * @var string 
      */
     private $title = '';
 
     /**
      *
-     * @var string 
+     * @var type
      */
-    private $backTitle = '';
-    private $program = 'dialog';
+    protected $type;
 
-    private function getType(){
-        
+    /**
+     * 
+     * @return string
+     */
+    private function getType() {
         return $this->type;
     }
-    
+
     protected function getScreenWidth() {
         return (int) $this->screenWidth;
     }
@@ -120,7 +138,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @return string
      */
     public function getProgram() {
@@ -128,7 +146,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param type $width
      * @param type $height
      * @return \Dialog4Php
@@ -140,16 +158,16 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @return \Dialog4Php
      */
-    public function resetXY() {
+    public function setScreen80x24($profile = 'max') {
         $this->setXY(80, 24);
         return $this;
     }
 
     /**
-     * 
+     *
      * @param int $toExit
      * @return \Dialog4Php
      */
@@ -163,7 +181,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param type $returnValue
      * @return \Dialog4Php
      */
@@ -173,7 +191,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param type $cmd
      * @param type $wantinputfd
      */
@@ -187,6 +205,26 @@ class Dialog4Php {
             3 => array('pipe', 'w')
                 ), $this->pipes
         );
+    }
+
+    /**
+     *
+     * @param int $height
+     * @return \Dialog4Php\Dialog4Php
+     */
+    public function setScreenHeight($height) {
+        $this->screenHeight = (int) $height;
+        return $this;
+    }
+
+    /**
+     *
+     * @param int $width
+     * @return \Dialog4Php\Dialog4Php
+     */
+    public function setScreenWidth($width) {
+        $this->screenWidth = $width;
+        return $this;
     }
 
     /**
@@ -216,7 +254,7 @@ class Dialog4Php {
         fclose($this->pipes[2]);
         fclose($this->pipes[3]);
 
-        //Loop while process is still running
+//Loop while process is still running
         do {
             usleep(2000);
             $procStatus = proc_get_status($this->processId);
@@ -227,7 +265,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param type $cmd
      * @return type
      */
@@ -236,13 +274,13 @@ class Dialog4Php {
         $this->processStart($cmd);
         $this->processStop();
 
-        //Note the return value here is the shell return value,
-        //Where 0 equals sucess without error
+//Note the return value here is the shell return value,
+//Where 0 equals sucess without error
         return $this->exitCode;
     }
 
     /**
-     * 
+     *
      * @param string $item
      * @return type
      * @throws \Exception
@@ -258,19 +296,36 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     * Uses dialog to detect the largest screen size
+     * @return \Dialog4Php\Dialog4Php
+     */
+    public function setScreenMax() {
+        $output = array();
+//$sizeCommaSeparated = $this->runCmd('dialog --print-maxsize', $output);
+        $this->runCmd('dialog  --output-fd 3 --print-maxsize ');
+        echo "\n\n";
+        echo "\n\n";
+        $wxy = explode(" ", str_replace(",", "", $this->response));
+        if (isset($wxy[2]) && isset($wxy[1])) {
+            $this->setXY($wxy[2], $wxy[1]);
+        }
+        return $this;
+    }
+
+    /**
+     *
      * @param type $colorTheme
      * @return type
      */
     public function setColorTheme($colorTheme) {
-        if ($colorTheme == 1 || $colorTheme === 'critical') {
+        if ($colorTheme == 5 || $colorTheme === 'critical') {
             $this->colorTheme = array(
                 'backtitle' => "\Z1",
                 'title' => "\Z7",
                 'body' => "\Z1",
                 'enable' => ' --colors'
             );
-        } elseif ($colorTheme == 2 || $colorTheme === 'warning') {
+        } elseif ($colorTheme == 4 || $colorTheme === 'warning') {
             $this->colorTheme = array(
                 'backtitle' => "",
                 'title' => "",
@@ -284,14 +339,14 @@ class Dialog4Php {
                 'body' => "",
                 'enable' => ' --colors'
             );
-        } elseif ($colorTheme == 4 || $colorTheme === 'ok') {
+        } elseif ($colorTheme == 2 || $colorTheme === 'ok') {
             $this->colorTheme = array(
                 'backtitle' => "",
                 'title' => "",
                 'body' => "",
                 'enable' => ' --colors'
             );
-        } elseif ($colorTheme == 5 || $colorTheme === 'success') {
+        } elseif ($colorTheme == 1 || $colorTheme === 'success') {
             $this->colorTheme = array(
                 'backtitle' => "",
                 'title' => "",
@@ -310,16 +365,7 @@ class Dialog4Php {
     }
 
     /**
-     * Double escaped because php escapes the escape, then the shell escapes the single quote
-     * @param string $unescaped
-     * @return string
-     */
-    static private function escapeSingleQuote($unescaped) {
-        return (string) str_replace("'", "\\'", $unescaped);
-    }
-
-    /**
-     * 
+     *
      * @param string $body
      * @return \Dialog4Php
      */
@@ -329,7 +375,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param string $title
      * @return \Dialog4Php
      */
@@ -339,7 +385,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @param string $backTitle
      */
     public function setBackTitle($backTitle) {
@@ -348,7 +394,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @return string
      */
     protected function getBody() {
@@ -356,7 +402,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @return string
      */
     protected function getTitle() {
@@ -364,7 +410,7 @@ class Dialog4Php {
     }
 
     /**
-     * 
+     *
      * @return string
      */
     protected function getBackTitle() {
@@ -484,7 +530,7 @@ class Dialog4Php {
          *     3 3 3
          *     array(
          *         3.1 3.1 3.1
-         *         3.2 3.2 3.2 
+         *         3.2 3.2 3.2
          *         3.3 3.3 3.3
          *         array(
          *             3.3.1 3.3.1 3.3.1
@@ -495,7 +541,7 @@ class Dialog4Php {
          */
 
         $string = '';
-        //if (is_array($trees)) {
+//if (is_array($trees)) {
         foreach ($trees as $key => $tree) {
             if (is_array($tree) && !is_string($tree)) {
                 $string .= $this->recursiveTree($tree, $depth + 1);
@@ -507,7 +553,7 @@ class Dialog4Php {
                 }
             }
         }
-        //}
+//}
         return $string;
     }
 
@@ -542,10 +588,14 @@ class Dialog4Php {
         }
     }
 
-    protected function generateColorTheme(){
-        return $this->getColorTheme('enable');
+    protected function generateColorTheme() {
+        return ' ' . $this->getColorTheme('enable');
     }
-    
+
+    /**
+     * 
+     * @return string
+     */
     protected function generateTitle() {
         if (!empty($this->getTitle())) {
             return " --title '" . $this->getColorTheme('title') . $this->getTitle() . "'";
@@ -553,6 +603,10 @@ class Dialog4Php {
         return '';
     }
 
+    /**
+     * 
+     * @return string
+     */
     protected function generateBackTitle() {
         if (!empty($this->getBackTitle())) {
             return " --backtitle '" . $this->getColorTheme('backtitle') . $this->getBackTitle() . "'";
@@ -560,15 +614,39 @@ class Dialog4Php {
         return '';
     }
 
+    /**
+     * 
+     * @return string
+     */
     protected function generateBody() {
         if (!empty($this->getBody())) {
             return $this->generateType() . " '" . $this->getColorTheme('body') . $this->getBody() . "'";
         }
-        return "''";
+        return $this->generateType() . " ''";
     }
 
+    /**
+     * 
+     * @return string
+     */
     protected function generateType() {
         return ' ' . $this->getType();
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    protected function generateProgram() {
+        return $this->program . ' ' . $this->pipeRedirect;
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    protected function generateScreen() {
+        return " " . $this->getScreenWidth() . " " . $this->getScreenHeight();
     }
 
 }
