@@ -1,0 +1,24 @@
+{
+    "name": "dialog4php/dialog4php",
+    "description": "PHP Commandline Wrapper to give a GUI like interface with keyboard control at the terminal",
+    "type": "library",
+    "require": {
+        
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "microuser",
+            "email": "macro_user@outlook.com"
+        }
+    ],
+    "minimum-stability": "beta",
+    "autoload":{
+        "psr-4":{
+            "microuser\\Dialog4Php\\": "src"
+        }
+    }
+}

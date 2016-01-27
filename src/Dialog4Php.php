@@ -1,10 +1,6 @@
 <?php
 
-namespace Dialog4Php;
-
-require_once('InfoBox.php');
-require_once('EditBox.php');
-require_once('Guage.php');
+namespace microuser\Dialog4Php;
 
 /**
  * Description of Dialog4Php
@@ -122,8 +118,19 @@ class Dialog4Php {
      */
     private $typeArgs = '';
 
-    private static function escapeSingleQuote($unescaped) {
-        return str_replace("", "\\'", (string) $unescaped);
+    /**
+     * 
+     */
+    private $dryRun = false;
+    
+    /**
+     * 
+     * @param string $unescaped
+     * @return string
+     */
+    protected static function escapeSingleQuote($unescaped) {
+        //Bash does not use back-slash to escape the single quote, but php does
+        return str_replace("'", "'\"'\"'", (string) $unescaped); //Escape the escape character
     }
 
     /**
@@ -275,15 +282,20 @@ class Dialog4Php {
      */
     protected function processStart($cmd, $wantinputfd = false) {
         $this->lastCommand = $cmd;
-        $this->processId = proc_open(
-                $cmd, array(
-            0 => ($wantinputfd) ? array('pipe', 'r') : STDIN,
-            1 => STDOUT,
-            2 => array('pipe', 'w'),
-            3 => array('pipe', 'w'),
-            //4 => array('pipe', 'r')
-                ), $this->pipes
-        );
+        
+        if($this->dryRun){
+            echo($cmd);
+        } else {
+            $this->processId = proc_open(
+                    $cmd, array(
+                0 => ($wantinputfd) ? array('pipe', 'r') : STDIN,
+                1 => STDOUT,
+                2 => array('pipe', 'w'),
+                3 => array('pipe', 'w'),
+                //4 => array('pipe', 'r')
+                    ), $this->pipes
+            );
+        }
         return $this;
     }
 
@@ -292,37 +304,40 @@ class Dialog4Php {
      * @return \Dialog4Php\Dialog4Php
      */
     protected function processStop() {
-        if (isset($this->pipes[0])) {
-            fclose($this->pipes[0]);
-            usleep(2000);
+        if(!$this->dryRun){
+            if (isset($this->pipes[0])) {
+                fclose($this->pipes[0]);
+                usleep(2000);
+            }
+
+            $this->response = '';
+            while ($partial = fgets($this->pipes[3])) {
+                $this->response .= $partial;
+            }
+
+            while ($partial = fgets($this->pipes[2])) {
+                fwrite(STDERR, $partial);
+                ++$this->errorCount;
+            }
+
+            if ($this->errorCount && $this->shouldExitOnError) {
+                fwrite(STDERR, 'Error with error on command: ' . PHP_EOL . $this->lastCommand . '' . PHP_EOL . PHP_EOL);
+                exit(1);
+            }
+
+            fclose($this->pipes[2]);
+            fclose($this->pipes[3]);
+
+            //Loop while process is still running
+            do {
+                usleep(2000);
+                $procStatus = proc_get_status($this->processId);
+            } while ($procStatus['running']);
+
+            proc_close($this->processId);
         }
-
-        $this->response = '';
-        while ($partial = fgets($this->pipes[3])) {
-            $this->response .= $partial;
-        }
-
-        while ($partial = fgets($this->pipes[2])) {
-            fwrite(STDERR, $partial);
-            ++$this->errorCount;
-        }
-
-        if ($this->errorCount && $this->shouldExitOnError) {
-            fwrite(STDERR, 'Error with error on command: ' . PHP_EOL . $this->lastCommand . '' . PHP_EOL . PHP_EOL);
-            exit(1);
-        }
-
-        fclose($this->pipes[2]);
-        fclose($this->pipes[3]);
-
-        //Loop while process is still running
-        do {
-            usleep(2000);
-            $procStatus = proc_get_status($this->processId);
-        } while ($procStatus['running']);
-
-        proc_close($this->processId);
         $this->exitCode = $procStatus['exitcode'];
+        
         return $this;
     }
 
@@ -332,9 +347,10 @@ class Dialog4Php {
      * @return bool
      */
     protected function runCmd($cmd) {
-        echo $cmd;
-        $this->processStart($cmd);
-        $this->processStop();
+
+            $this->processStart($cmd);
+            $this->processStop();
+        
 
 //Note the return value here is the shell return value,
 //Where 0 equals sucess without error
@@ -426,7 +442,7 @@ class Dialog4Php {
      *
      * @return \Dialog4Php
      */
-    public function setScreen80x24($profile = 'max') {
+    public function setScreen80x24() {
         $this->setScreenWidth(80);
         $this->setScreenHeight(24);
         return $this;
@@ -477,6 +493,11 @@ class Dialog4Php {
         return $this;
     }
 
+    protected function setType(){
+        $this->type;
+        return $this;
+    }
+    
     /**
      *
      * @param string $body
@@ -609,5 +630,7 @@ class Dialog4Php {
             return false;
         }
     }
+    
+    
 
 }

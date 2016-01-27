@@ -1,8 +1,9 @@
 <?php
-use Dialog4Php\InfoBox;
-require_once(__DIR__.'/../Dialog4Php.php');
+use microuser\Dialog4Php;
 
-$ib = new \Dialog4Php\InfoBox();
+require_once(__DIR__.'/../vendor/autoload.php');
+
+$ib = new InfoBox();
 $ib->setBody('seris')
 ->setScreenMax()
 ->setTitle("someTitle")
