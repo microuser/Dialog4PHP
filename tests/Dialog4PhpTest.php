@@ -42,6 +42,12 @@ class Dialog4Php_Testable extends Dialog4Php{
     public function getType(){
         return parent::getType();
     }
+    public function getLastCommand(){
+        return parent::getLastCommand();
+    }
+    public function setDryRun($dryRun){
+        parent::setDryRun($dryRun);
+    }
     
     
 }
@@ -129,6 +135,29 @@ class Dialog4PhpTest extends \PHPUnit_Framework_TestCase {
     public function testSetGetType(){
         $this->d->setType("Type");
         $this->assertEquals("Type",$this->d->getType());
+    }
+    
+    public function testSetScreenMax(){
+        //This might require that PHPUnit is ran from within a terminal.
+        //I attempted to run this with: nohup vendor/bin/phpunit and it seems to emulate a 24x80 screen
+        //But your milage may varry
+        $this->d->setScreenMax();
+        $this->assertTrue(is_string($this->d->getResponse()));
+        $this->assertTrue(strlen($this->d->getResponse()) > 0);
+        $this->assertTrue(is_numeric($this->d->getScreenHeight()));
+        $this->assertTrue(is_numeric($this->d->getScreenWidth()));
+    }
+    
+    public function testSetGetDryRun(){
+        $this->d->setDryRun(true);
+        $this->d->setScreenHeight(-1);
+        $this->d->setScreenMax();
+        //This Proves that DryRun does not allow execuition. Because SetScreenMax() did not run.
+        $this->assertEquals(-1,$this->d->getScreenHeight());
+        //This shows that the command was ready to run.
+        $this->assertEquals('dialog --output-fd 3 --print-maxsize',$this->d->getLastCommand());
+        //I wonder if there is a way to capture the output of the php echo to see what it printed during running this.
+        
     }
     
     public function testGenerators(){

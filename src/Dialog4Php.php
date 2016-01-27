@@ -218,8 +218,20 @@ class Dialog4Php {
         }
     }
 
+    /**
+     * 
+     * @return int
+     */
     protected function getExitCode(){
         return (int)$this->exitCode;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getLastCommand(){
+        return $this->lastCommand;
     }
     
     /**
@@ -304,7 +316,9 @@ class Dialog4Php {
      * @return \Dialog4Php\Dialog4Php
      */
     protected function processStop() {
-        if(!$this->dryRun){
+        if($this->dryRun){
+            $this->exitCode = 0;
+        }else {
             if (isset($this->pipes[0])) {
                 fclose($this->pipes[0]);
                 usleep(2000);
@@ -335,8 +349,9 @@ class Dialog4Php {
             } while ($procStatus['running']);
 
             proc_close($this->processId);
+            $this->exitCode = $procStatus['exitcode'];
+
         }
-        $this->exitCode = $procStatus['exitcode'];
         
         return $this;
     }
@@ -427,6 +442,16 @@ class Dialog4Php {
         $this->escapeKeyReturn = $returnValue;
         return $this;
     }
+    
+    /**
+     * Used for debugging and running unit tests
+     * @param bool $dryRun
+     * @return \microuser\Dialog4Php\Dialog4Php
+     */
+    protected function setDryRun($dryRun){
+        $this->dryRun = $dryRun;
+        return $this;
+    }
 
     /**
      *
@@ -468,7 +493,7 @@ class Dialog4Php {
      */
     public function setScreenMax() {
         $output = array();
-        $this->runCmd('dialog  --output-fd 3 --print-maxsize ');
+        $this->runCmd('dialog --output-fd 3 --print-maxsize');
         $wxy = explode(" ", str_replace(",", "", $this->response));
         if (isset($wxy[2]) && isset($wxy[1])) {
             $this->setScreenWidth($wxy[2]);
