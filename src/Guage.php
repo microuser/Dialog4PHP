@@ -1,6 +1,6 @@
 <?php
 
-namespace Dialog4Php;
+namespace microuser\Dialog4Php;
 
 class Guage extends Dialog4PHP {
 

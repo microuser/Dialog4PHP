@@ -1,5 +1,5 @@
 <?php
-use Dialog4Php\Guage;
+use microuser\Dialog4Php\Guage;
 
 require_once(__DIR__.'/../Dialog4Php.php');
 

@@ -1,5 +1,6 @@
 <?php
-use microuser\Dialog4Php;
+use microuser\Dialog4Php\InfoBox;
+use microuser\Dialog4Php\Dialog4Php;
 
 require_once(__DIR__.'/../vendor/autoload.php');
 

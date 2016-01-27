@@ -1,6 +1,7 @@
 <?php
 
-namespace Dialog4Php;
+namespace microuser\Dialog4Php;
+use microuser\Dialog4Php\Dialog4Php;
 
 class EditBox extends Dialog4PHP {
 
