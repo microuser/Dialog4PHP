@@ -262,8 +262,8 @@ class Dialog4Php {
      * 
      * @return string
      */
-    private function getType() {
-        return $this->type;
+    protected function getType() {
+        return (string)$this->type;
     }
 
     /**
@@ -438,6 +438,10 @@ class Dialog4Php {
         return $this;
     }
 
+    protected function setProgram($program){
+        $this->program = (string)$program;
+        return $this;
+    }
     /**
      *
      * @return \Dialog4Php
@@ -493,8 +497,8 @@ class Dialog4Php {
         return $this;
     }
 
-    protected function setType(){
-        $this->type;
+    protected function setType($type){
+        $this->type = $type;
         return $this;
     }
     
