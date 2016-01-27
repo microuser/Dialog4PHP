@@ -15,7 +15,8 @@
             "email": "macro_user@outlook.com"
         }
     ],
-    "minimum-stability": "beta",
+    "version": "1.0.0",
+    "minimum-stability": "Stable",
     "autoload":{
         "psr-4":{
             "microuser\\Dialog4Php\\": "src"
