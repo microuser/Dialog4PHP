@@ -32,11 +32,8 @@ class EditBox extends Dialog4PHP {
         $cmd .= $this->generateColorTheme();
         $cmd .= $this->generateType();
         $cmd .= $this->generateScreen();
-        if ($this->runCmd($cmd) == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->runCmd($cmd);
+        
     }
 
 }

@@ -1,8 +1,15 @@
 <?php
+use microuser\Dialog4Php\MsgBox;
+use microuser\Dialog4Php\Dialog4Php;
 
-include_once(__DIR__.'/../Dialog4Php.php');
+require_once(__DIR__.'/../vendor/autoload.php');
 
-$dp = new Dialog4Php();
-$dp->msgBox("This is a test of just body");
-$dp->msgBox("This is a test of just body", "title");
-$dp->msgBox("This is a test of just body", "title", "Backtitle");
+
+$ib = new MsgBox();
+$ib->setBody('seris')
+->setScreenMax()
+->setTitle("someTitle")
+//->setBackTitle("backtitle")
+->setColorTheme(0)
+->run();
+

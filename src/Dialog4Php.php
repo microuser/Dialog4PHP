@@ -235,6 +235,25 @@ class Dialog4Php {
     }
     
     /**
+     * 
+     * @return boolean
+     */
+    public function getLastReturnStatus() {
+        switch ($this->exitCode) {
+            case 0 :
+                return true;
+                break;
+            case 1:
+                return false;
+                break;
+            case 255:
+                return null;
+                break;
+        }
+        return false;
+    }
+
+    /**
      *
      * @return string
      */
@@ -349,6 +368,11 @@ class Dialog4Php {
             } while ($procStatus['running']);
 
             proc_close($this->processId);
+            //Note the return value here is the shell return value,
+            //Where 
+            // 0 equals yes / ok
+            // 1 equals no
+            // 255 equals escape button
             $this->exitCode = $procStatus['exitcode'];
 
         }
@@ -365,11 +389,8 @@ class Dialog4Php {
 
             $this->processStart($cmd);
             $this->processStop();
-        
-
-//Note the return value here is the shell return value,
-//Where 0 equals sucess without error
-        return $this->exitCode;
+       
+            return $this->getLastReturnStatus();
     }
 
     /**
@@ -546,53 +567,9 @@ class Dialog4Php {
         return $this;
     }
 
-    public function msgBox($body, $title = null, $backTitle = null) {
-        $colorThemes = $this->colorTheme($colorTheme);
-        $body = " --msgbox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function yesnoBox($body, $title = null, $backtitle = null, $colorTheme = null) {
-        $colorThemes = $this->colorTheme($colorTheme);
-        $body = " --yesno '" . str_replace("'", "\\'", $body) . "'";
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth");
-
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 
-    public function inputBox($body, $default) {
-        $default = ($default === null) ? null : "'" . str_replace("'", "\\'", $colorThemes['body'] . $default) . "'";
-        $colorThemes = $this->colorTheme($colorTheme);
-        $body = " --inputbox '" . str_replace("'", "\\'", $colorThemes['body'] . $body) . "'";
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth $default");
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 
     private function recursiveTree($trees, $depth = -1) {
         /*
