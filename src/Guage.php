@@ -35,11 +35,17 @@ class Guage extends Dialog4PHP {
     }
     
     /**
-     * 
-     * @param int $percent
+     * Floats are fractions between 0 and 1: Where "50/100" is passed as 0.5 is converted to 50
+     * @param int|float $percent
      */
     public function setPercent($percent){
-        $this->percent = (int)$percent;
+        if(is_float($percent)){
+            $this->percent = (int)round($percent*100,1);
+        } else {
+            $this->percent = (int)$percent;
+        }
+        return $this;
+        
     }
     
     /**
@@ -70,6 +76,7 @@ class Guage extends Dialog4PHP {
         $cmd .= $this->generateType();
         $cmd .= $this->generateScreen();
         $this->processStart($cmd, true);
+        return $this;
     }
 
     /**
@@ -77,16 +84,11 @@ class Guage extends Dialog4PHP {
      * @param float|int|null $percent
      */
     public function update($percent = null) {
-        //Floats are fractions between 0 and 1: 0 < X < 1
-        if(is_float($percent)){
-            $this->percent = (int)($percent * 100);
-        }
-        //Ints are percents
-        //Nulls don't change anything, a screen refresh
-        if($percent !== null){
-            $this->percent = $percent;
+        if(!is_null($percent)){
+            $this->setPrecent($percent);
         }
         fwrite($this->pipes[0], "XXX\n".$this->percent. "\n".$this->getTypeArgs()."\nXXX\n");
+        return $this;
     }
 
     /**
