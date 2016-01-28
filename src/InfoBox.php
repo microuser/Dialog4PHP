@@ -17,8 +17,7 @@ class InfoBox extends Dialog4PHP {
      * @return \Dialog4Php\InfoBox
      */
     public function setBody($body) {
-        parent::setTypeArgs($body);
-        return $this;
+        return $this->setTypeArgs($body);
     }
 
     /**

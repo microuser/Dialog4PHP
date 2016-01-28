@@ -114,8 +114,8 @@ class Dialog4PhpTest extends \PHPUnit_Framework_TestCase {
     public function testSetGetResponse(){
         //In runCmd, the response pipe is 3. so we need to redirect STDOUT to &3 for this to work
         $this->d->runCmd('echo \'Response\' >&3;');
-        $this->assertTrue(is_string($this->d->getResponse()));
-        $this->assertEquals("Response\n", $this->d->getResponse());
+        $this->assertTrue(is_string($this->d->getLastResponse()));
+        $this->assertEquals("Response\n", $this->d->getLastResponse());
     }
     
     public function testSetGetScreenHeight(){
@@ -142,8 +142,8 @@ class Dialog4PhpTest extends \PHPUnit_Framework_TestCase {
         //I attempted to run this with: nohup vendor/bin/phpunit and it seems to emulate a 24x80 screen
         //But your milage may varry
         $this->d->setScreenMax();
-        $this->assertTrue(is_string($this->d->getResponse()));
-        $this->assertTrue(strlen($this->d->getResponse()) > 0);
+        $this->assertTrue(is_string($this->d->getLastResponse()));
+        $this->assertTrue(strlen($this->d->getLastResponse()) > 0);
         $this->assertTrue(is_numeric($this->d->getScreenHeight()));
         $this->assertTrue(is_numeric($this->d->getScreenWidth()));
     }

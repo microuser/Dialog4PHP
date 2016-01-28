@@ -20,8 +20,7 @@ class MsgBox extends Dialog4Php {
     protected $type = '--msgbox';
 
     public function setBody($body){
-        $this->setTypeArgs($body);
-        return $this;
+        return $this->setTypeArgs($body);
     }
 
     
@@ -32,12 +31,7 @@ class MsgBox extends Dialog4Php {
         $cmd .= $this->generateColorTheme();
         $cmd .= $this->generateType();
         $cmd .= $this->generateScreen(0, 0);
-        if ($this->runCmd($cmd) == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+        return $this->runCmd($cmd);
+            
 
 }

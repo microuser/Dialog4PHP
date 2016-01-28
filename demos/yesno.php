@@ -20,6 +20,8 @@ $ib->setColorTheme(0);
 if ($ib->run()) {
     echo "The Run function returns a boolean which indicates that the user has pressed Yes" . PHP_EOL;
 } else {
+    //If you check for null === $ib->run() then you can tell if cancel
+    //If you check for false === $ib->run() then you can tell if No
     echo "The Run function returns a boolean which indicates that the user has pressed No or Cancel" . PHP_EOL;
 }
 
@@ -47,7 +49,7 @@ switch ($ib->getLastReturnStatus()){
 }
 
 
-if ($ib->getResponse()) {
+if ($ib->getLastResponse()) {
     "The Yes No box never has a response. You should never see this message. For the response is for things with user input.";
 }
 

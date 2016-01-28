@@ -17,17 +17,29 @@ class Guage extends Dialog4PHP {
      */
     private $percent = 0;
 
+    /**
+     * 
+     * @param string $body
+     * @return \microuser\Dialog4Php\Guage
+     */
     public function setBody($body){
-        parent::setTypeArgs($body);
-        return $this;
+        return $this->setTypeArgs($body);
     }
     
+    /**
+     * 
+     * @return string
+     */
     private function getBody(){
         return parent::getTypeArgs();
     }
     
+    /**
+     * 
+     * @param int $percent
+     */
     public function setPercent($percent){
-        $this->percent = $percent;
+        $this->percent = (int)$percent;
     }
     
     /**
@@ -47,6 +59,9 @@ class Guage extends Dialog4PHP {
         
     }
     
+    /**
+     * 
+     */
     public function start() {
         $cmd = $this->generateProgram();
         $cmd .= $this->generateTitle();
@@ -57,19 +72,27 @@ class Guage extends Dialog4PHP {
         $this->processStart($cmd, true);
     }
 
+    /**
+     * 
+     * @param float|int|null $percent
+     */
     public function update($percent = null) {
         //Floats are fractions between 0 and 1: 0 < X < 1
         if(is_float($percent)){
             $this->percent = (int)($percent * 100);
         }
         //Ints are percents
-        //Nulls don't change anything
+        //Nulls don't change anything, a screen refresh
         if($percent !== null){
             $this->percent = $percent;
         }
         fwrite($this->pipes[0], "XXX\n".$this->percent. "\n".$this->getTypeArgs()."\nXXX\n");
     }
 
+    /**
+     * 
+     * @return bool LastReturnStatus
+     */
     public function stop() {
         $this->processStop();
         return $this->getLastReturnStatus();

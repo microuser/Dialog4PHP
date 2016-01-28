@@ -17,8 +17,7 @@ class EditBox extends Dialog4PHP {
      * @return \Dialog4Php\EditBox
      */
     public function setFilePath($filePath) {
-        $this->setTypeArgs($filePath);
-        return $this;
+        return $this->setTypeArgs($filePath);
     }
 
     /**

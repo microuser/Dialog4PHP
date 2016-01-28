@@ -17,7 +17,7 @@ $tree = array(
     array(2,2,'off')
 );
 if($dp->treeView("Select one of the following", 8, $tree)){
-    $dp->infoBox($dp->setXY(80,10)->getResponse());
+    $dp->infoBox($dp->setXY(80,10)->getLastResponse());
 }
 else {
     echo "Dont' want nothing\n";

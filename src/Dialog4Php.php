@@ -80,7 +80,7 @@ class Dialog4Php {
      *
      * @var string
      */
-    private $response = '';
+    private $lastResponse = '';
 
     /**
      *
@@ -261,8 +261,12 @@ class Dialog4Php {
         return (string) $this->program;
     }
 
-    public function getResponse() {
-        return $this->response;
+    /**
+     * 
+     * @return string
+     */
+    public function getLastResponse() {
+        return $this->lastResponse;
     }
 
     /**
@@ -343,9 +347,9 @@ class Dialog4Php {
                 usleep(2000);
             }
 
-            $this->response = '';
+            $this->lastResponse = '';
             while ($partial = fgets($this->pipes[3])) {
-                $this->response .= $partial;
+                $this->lastResponse .= $partial;
             }
 
             while ($partial = fgets($this->pipes[2])) {
@@ -515,7 +519,7 @@ class Dialog4Php {
     public function setScreenMax() {
         $output = array();
         $this->runCmd('dialog --output-fd 3 --print-maxsize');
-        $wxy = explode(" ", str_replace(",", "", $this->response));
+        $wxy = explode(" ", str_replace(",", "", $this->lastResponse));
         if (isset($wxy[2]) && isset($wxy[1])) {
             $this->setScreenWidth($wxy[2]);
             $this->setScreenHeight($wxy[1]);
@@ -570,57 +574,6 @@ class Dialog4Php {
 
 
 
-
-    private function recursiveTree($trees, $depth = -1) {
-        /*
-         * array(
-         *     1 1 1
-         *     2 2 2
-         *     3 3 3
-         *     array(
-         *         3.1 3.1 3.1
-         *         3.2 3.2 3.2
-         *         3.3 3.3 3.3
-         *         array(
-         *             3.3.1 3.3.1 3.3.1
-         *         )
-         *         3.4 3.4 3.4 3.4
-         *     )
-         *     4 4 4
-         */
-
-        $string = '';
-//if (is_array($trees)) {
-        foreach ($trees as $key => $tree) {
-            if (is_array($tree) && !is_string($tree)) {
-                $string .= $this->recursiveTree($tree, $depth + 1);
-            }
-//We are at end of branch
-            else {
-                if ($key == 2) {
-                    $string .= " '" . $trees[0] . "'" . " '" . $trees[1] . "'" . " '" . $trees[2] . "'" . " $depth";
-                }
-            }
-        }
-//}
-        return $string;
-    }
-
-    public function treeView($body, $listHeight, Array $tree, $title = null, $backtitle = null, $colorTheme = null) {
-        $treeString = $this->recursiveTree($tree);
-        $colorThemes = $this->colorTheme($colorTheme);
-        $body = " --treeview '" . str_replace("'", "\\'", $colorThemes['title'] . $body) . "'";
-        $title = ($title === null) ? null : " --title '" . str_replace("'", "\\'", $colorThemes['title'] . $title) . "'";
-        $backtitle = ($backtitle === null) ? null : " --backtitle '" . str_replace("'", "\\'", $colorThemes['backtitle'] . $backtitle) . "'";
-        $charHeight = $this->screenHeight - (($backtitle === null) ? 3 : 5);
-        $charWidth = $this->screenWidth - 4;
-        $this->runCmd("dialog --output-fd 3" . $title . $backtitle . $colorThemes['colors'] . $body . " $charHeight $charWidth $listHeight $treeString");
-        if ($this->ret == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public function timeBox($body, $hour = null, $minute = null, $second = null, $title = null, $backtitle = null, $colorTheme = null) {
         $colorThemes = $this->colorTheme($colorTheme);

@@ -1,7 +1,16 @@
 <?php
-include_once(__DIR__.'/../Dialog4Php.php');
-$dp = new Dialog4Php();
+use microuser\Dialog4Php\InputBox;
+use microuser\Dialog4Php\Dialog4Php;
 
-$dp->setXY(80,11);
-$dp->inputBox('Body','Text');
-$dp->inputBox("Your last response was", $dp->getResponse());
+require_once(__DIR__.'/../vendor/autoload.php');
+
+$dp = new InputBox();
+$dp->setBody("Body Message");
+$dp->setInput("Default Text");
+$dp->setTitle("Title Text");
+
+if($dp->run()){
+    echo PHP_EOL."User Response: ".$dp->getLastResponse(). PHP_EOL;
+} else {
+    echo PHP_EOL."User Pressed Cancel or Escape Key". PHP_EOL;
+}
