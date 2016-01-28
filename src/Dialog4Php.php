@@ -273,7 +273,7 @@ class Dialog4Php {
      * 
      * @return int
      */
-    protected function getScreenHeight() {
+    public function getScreenHeight() {
         return (int) $this->screenHeight;
     }
 
@@ -281,7 +281,7 @@ class Dialog4Php {
      * 
      * @return int
      */
-    protected function getScreenWidth() {
+    public function getScreenWidth() {
         return (int) $this->screenWidth;
     }
 
