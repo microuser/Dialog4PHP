@@ -19,11 +19,19 @@ class MsgBox extends Dialog4Php {
 
     protected $type = '--msgbox';
 
+    /**
+     * 
+     * @param string $body
+     * @return microuser\Dialog4Php\MsgBox
+     */
     public function setBody($body){
         return $this->setTypeArgs($body);
     }
 
-    
+    /**
+     * 
+     * @return bool 
+     */
     public function run() {
         $cmd = $this->generateProgram();
         $cmd .= $this->generateTitle();
@@ -32,6 +40,6 @@ class MsgBox extends Dialog4Php {
         $cmd .= $this->generateType();
         $cmd .= $this->generateScreen(0, 0);
         return $this->runCmd($cmd);
-            
+    }
 
 }
