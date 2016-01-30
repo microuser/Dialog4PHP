@@ -473,7 +473,7 @@ class Dialog4Php {
      * @param bool $dryRun
      * @return \microuser\Dialog4Php\Dialog4Php
      */
-    protected function setDryRun($dryRun){
+    public function setDryRun($dryRun){
         $this->dryRun = $dryRun;
         return $this;
     }

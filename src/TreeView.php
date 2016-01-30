@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace microuser\Dialog4Php;
 use microuser\Dialog4Php\Dialog4Php;
 
@@ -16,11 +10,76 @@ use microuser\Dialog4Php\Dialog4Php;
  */
 class TreeView extends Dialog4Php{
     
+    /**
+     *
+     * @var string
+     */
     protected $type = '--treeview';
     
+    /**
+     *
+     * @var int
+     */
+    private $listHeight = null;
+    
+    /**
+     *
+     * @var string
+     */
+    private $body = '';
+    /**
+     *
+     * @var array
+     */
+    private $tree = array();
+
+    private $treeItemCount = 0;
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getBody(){
+        return $this->getTypeArgs();
+    }
+    
+    /**
+     * 
+     * @param string $body
+     * @return \microuser\Dialog4Php\TreeView
+     */
     public function setBody($body){
         return $this->setTypeArgs($body);
     }
+    
+    /**
+     * 
+     * @param array|string $arrayOrString
+     * @return \microuser\Dialog4Php\TreeView
+     */
+    public function appendTreeRoot($arrayOrString){
+        $this->tree[] = $array;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @param string $tree
+     * @return \microuser\Dialog4Php\TreeView
+     */
+    public function setTree($tree){
+        $this->tree = $tree;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getTree(){
+        return $this->tree;
+    }
+    
     
     
         
@@ -58,7 +117,8 @@ class TreeView extends Dialog4Php{
             //We are at end of branch
             else {
                 if ($key == 2) {
-                    $string .= " '" . $trees[0] . "'" . " '" . $trees[1] . "'" . " '" . $trees[2] . "'" . " $depth";
+                    $this->treeItemCount += 1;
+                    $string .= " '" . $this->escapeSingleQuote($trees[0]) . "'" . " '" . $this->escapeSingleQuote($trees[1]) . "'" . " '" . $this->escapeSingleQuote($trees[2]) . "'" . " '$depth'";
                 }
             }
         }
@@ -66,12 +126,49 @@ class TreeView extends Dialog4Php{
         return $string;
     }
     
+    /**
+     * If $this->listHeight is null, then it calcualtes the height from the elemnets in $this->tree
+     * If $this->listHeight is int, then it uses the manually set value. 
+     * Set with $this->setListHeight($height)
+     * @return int
+     */
+    public function getListHeight(){
+        if($this->listHeight === null){
+            return $this->treeItemCount;
+        }
+        return (int)$this->listHeight;
+    }
+    
+    /**
+     * 
+     * Allows setting of the list height. 
+     * If passed a null, then height is automatically detected from list
+     * @param int|null $height
+     * @return \microuser\Dialog4Php\TreeView
+     */
+    public function setListHeight($height){
+        $this->listHeight = (int)$height;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function generateTree(){
+        $this->treeItemCount = 0;
+        $treeString = $this->recursiveTree($this->getTree());
+        return ' '.$this->getListHeight().' '.$treeString;
+    }
+    
     public function run(){
-        
-        
-        $cmd = $this->generateType();
+        $cmd = $this->generateProgram();
         $cmd .= $this->generateTitle();
         $cmd .= $this->generateBackTitle();
+        $cmd .= $this->generateColorTheme();
+        $cmd .= $this->generateType();
+        $cmd .= $this->generateScreen();
+        $cmd .= $this->generateTree();
         return $this->runCmd($cmd);
     }
 
