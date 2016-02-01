@@ -13,6 +13,9 @@ class Pause extends Dialog4PHP {
     
     private $pause = 0;
     
+    
+    
+    
     /**
      *
      * @param int $seconds
