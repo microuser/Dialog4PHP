@@ -27,6 +27,10 @@ class Dialog4Php {
      * @var array
      */
     private $colorTheme = array();
+    /**
+     * 
+     */
+    private $dryRun = false;
 
     /**
      *
@@ -45,7 +49,13 @@ class Dialog4Php {
      * @var int
      */
     private $exitCode = -1;
-
+    
+    /**
+     *
+     * @var string
+     */
+    protected $exitLabel = '';
+    
     /**
      *
      * @var string
@@ -118,11 +128,7 @@ class Dialog4Php {
      */
     private $typeArgs = '';
 
-    /**
-     * 
-     */
-    private $dryRun = false;
-    
+
     /**
      * 
      * @param string $unescaped
@@ -151,7 +157,17 @@ class Dialog4Php {
     protected function generateColorTheme() {
         return (empty($this->getColorTheme('enable')) ? '' : " " . $this->getColorTheme('enable'));
     }
-
+    /**
+     * 
+     * @return string
+     */
+    protected function generateOptionals(){
+        $out = '';
+        if(!empty($this->exitLabel)){
+            $out = " --exit-label '" . $this->exitLabel ."'";
+        }
+        return $out;
+    }
     /**
      * 
      * @return string
@@ -194,6 +210,8 @@ class Dialog4Php {
         }
     }
 
+
+    
     /**
      *
      * @return string
