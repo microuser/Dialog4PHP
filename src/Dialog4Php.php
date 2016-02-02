@@ -506,7 +506,7 @@ class Dialog4Php {
         return $this;
     }
 
-    protected function setProgram($program){
+    public function setProgram($program){
         $this->program = (string)$program;
         return $this;
     }
